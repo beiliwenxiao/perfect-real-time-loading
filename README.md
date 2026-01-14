@@ -16,3 +16,5 @@ Of course, the code is based on layui.
 git pull或下载后查看loading.html页面即可看到测试、演示和用法。
 
 After pulling or downloading, you can view the loading.html page to see the testing, demonstration, and usage.
+
+![页面例子](perfecrt_001.png)
