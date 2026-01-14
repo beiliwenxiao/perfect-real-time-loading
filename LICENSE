@@ -1,6 +1,13 @@
 MIT License
 
-Copyright (c) 2026 北北
+Copyright (c) 2026 北里闻箫(beiliwenxiao)
+
+@project 完美实时响应的Loading(perfect-real-time-loading)
+@author 北里闻箫(beiliwenxiao)
+@date 2026-01-14
+@blog https://blog.csdn.net/beiliwenxiao
+@repository https://github.com/beiliwenxiao/perfect-real-time-loading
+@repository1 https://gitee.com/coderaaa/perfect-real-time-loading
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +26,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
