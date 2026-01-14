@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+/**
+ * Loading 功能演示和测试页面（基于Layui）
+ * 
+ * @author 北里闻箫
+ * @date 2025-01-14
+ * @blog https://blog.csdn.net/beiliwenxiao
+ * @repository https://gitee.com/coderaaa/perfect-real-time-loading
+ */
+-->
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>完美实时响应Loading 功能演示和测试（基于Layui）</title>
+	<link rel="stylesheet" type="text/css" href="layui.css" />
+	<style>
+		body {
+			padding: 20px;
+			font-family: "Microsoft YaHei", Arial, sans-serif;
+		}
+		
+		.demo-section {
+			margin-bottom: 40px;
+			padding: 20px;
+			border: 1px solid #e6e6e6;
+			border-radius: 4px;
+			background: #fff;
+		}
+		
+		.demo-section h2 {
+			margin-top: 0;
+			color: #333;
+			border-bottom: 2px solid #4685FD;
+			padding-bottom: 10px;
+		}
+		
+		.demo-section h3 {
+			color: #666;
+			margin-top: 20px;
+		}
+		
+		.demo-buttons {
+			margin: 20px 0;
+		}
+		
+		.demo-buttons .layui-btn {
+			margin-right: 10px;
+			margin-bottom: 10px;
+		}
+		
+		.demo-menu {
+			background: #f8f8f8;
+			padding: 15px;
+			border-radius: 4px;
+		}
+		
+		.demo-menu a {
+			display: inline-block;
+			padding: 10px 20px;
+			margin: 5px;
+			background: #4685FD;
+			color: #fff;
+			text-decoration: none;
+			border-radius: 4px;
+			transition: all 0.3s;
+		}
+		
+		.demo-menu a:hover {
+			background: #3a73d9;
+		}
+		
+		.code-block {
+			background: #f5f5f5;
+			padding: 15px;
+			border-radius: 4px;
+			margin: 15px 0;
+			overflow-x: auto;
+		}
+		
+		.code-block pre {
+			margin: 0;
+			font-family: "Courier New", monospace;
+			font-size: 13px;
+			line-height: 1.6;
+		}
+		
+		/* 页面加载 Loading 样式 */
+		#page-loading-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(255, 255, 255, 0.8);
+			z-index: 9999999;
+			display: none;
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+		}
+		
+		#page-loading-overlay:hover {
+			background: rgba(255, 255, 255, 0.9);
+		}
+		
+		.page-loading-icon {
+			width: 37px;
+			height: 37px;
+			background: url(loading-1.gif) no-repeat center center;
+			background-size: contain;
+			pointer-events: none;
+		}
+		
+		.loading-tip {
+			position: absolute;
+			bottom: 45%;
+			left: 50%;
+			transform: translateX(-50%);
+			color: #999;
+			font-size: 12px;
+			white-space: nowrap;
+			pointer-events: none;
+		}
+		
+		.status-info {
+			margin-top: 20px;
+			padding: 10px;
+			background: #f0f9ff;
+			border-left: 4px solid #4685FD;
+			border-radius: 4px;
+		}
+		
+		.status-info p {
+			margin: 5px 0;
+		}
+	</style>
+</head>
+<body>
+	<!-- 页面加载 Loading -->
+	<div id="page-loading-overlay" onclick="hidePageLoading()" title="点击关闭">
+		<div class="page-loading-icon"></div>
+		<div class="loading-tip">点击任意位置关闭</div>
+	</div>
+	
+	<h1 style="color: #4685FD;">Loading 功能演示和测试</h1>
+	<p style="color: #999;">本页面用于演示和测试页面加载 Loading 和点击链接 Loading 的功能</p>
+	
+	<!-- 功能1: 页面加载时显示 Loading -->
+	<div class="demo-section">
+		<h2>功能1: 页面加载时显示 Loading</h2>
+		<p>页面加载时自动显示 Loading 动画，加载完成后自动隐藏。</p>
+		
+		<h3>测试按钮：</h3>
+		<div class="demo-buttons">
+			<button class="layui-btn" onclick="reloadPage()">重新加载页面（测试加载 Loading）</button>
+			<button class="layui-btn layui-btn-normal" onclick="showLoadingManual()">手动显示 Loading</button>
+			<button class="layui-btn layui-btn-warm" onclick="hideLoadingManual()">手动隐藏 Loading</button>
+		</div>
+		
+		<div class="status-info">
+			<p><strong>当前状态：</strong><span id="loading-status">已隐藏</span></p>
+			<p><strong>说明：</strong>页面加载时会自动显示 Loading，加载完成后自动隐藏。可以通过按钮手动控制。</p>
+			<p><strong>提示：</strong>显示 Loading 后，可以点击遮罩层任意位置关闭。</p>
+		</div>
+		
+		<h3>实现代码：</h3>
+		<div class="code-block">
+			<pre>&lt;!-- HTML 结构 --&gt;
+&lt;div id="page-loading-overlay"&gt;
+    &lt;div class="page-loading-icon"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- CSS 样式 --&gt;
+&lt;style&gt;
+#page-loading-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 9999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.page-loading-icon {
+    width: 32px; height: 32px;
+    background: url(loading-1.gif) no-repeat center center;
+    background-size: contain;
+}
+&lt;/style&gt;
+
+&lt;!-- JavaScript 控制 --&gt;
+&lt;script&gt;
+// 显示 Loading
+function showPageLoading() {
+    var overlay = document.getElementById('page-loading-overlay');
+    overlay.style.display = 'flex';
+    overlay.style.opacity = '1';
+}
+
+// 隐藏 Loading
+function hidePageLoading() {
+    var overlay = document.getElementById('page-loading-overlay');
+    overlay.style.opacity = '0';
+    setTimeout(function() {
+        overlay.style.display = 'none';
+    }, 300);
+}
+
+// 页面加载完成后自动隐藏
+window.addEventListener('load', hidePageLoading);
+&lt;/script&gt;</pre>
+		</div>
+	</div>
+	
+	<!-- 功能2: 点击菜单链接显示 Loading -->
+	<div class="demo-section">
+		<h2>功能2: 点击菜单链接显示 Loading</h2>
+		<p>点击菜单链接时，先显示 Loading 动画，然后再进行页面跳转。</p>
+		
+		<h3>测试菜单：</h3>
+		<div class="demo-menu">
+			<a href="loading.html?page=1" class="menu-link">菜单项 1</a>
+			<a href="loading.html?page=2" class="menu-link">菜单项 2</a>
+			<a href="loading.html?page=3" class="menu-link">菜单项 3</a>
+			<a href="javascript:;" class="menu-link">无效链接（不触发）</a>
+			<a href="#" class="menu-link">锚点链接（不触发）</a>
+			<a href="loading.html?page=4" target="_blank" class="menu-link">新窗口打开（不触发）</a>
+		</div>
+		
+		<div class="status-info">
+			<p><strong>说明：</strong></p>
+			<ul style="margin: 5px 0; padding-left: 20px;">
+				<li>点击前3个菜单项会显示 Loading 并跳转（延迟100ms确保动画显示）</li>
+				<li>"无效链接" 和 "锚点链接" 不会触发 Loading</li>
+				<li>"新窗口打开" 不会触发 Loading（因为不影响当前页面）</li>
+				<li>如果页面加载很快，可能只能看到短暂的 Loading 动画</li>
+			</ul>
+		</div>
+		
+		<h3>实现代码：</h3>
+		<div class="code-block">
+			<pre>&lt;script&gt;
+// 为菜单链接添加点击事件
+document.addEventListener('DOMContentLoaded', function() {
+    var menuLinks = document.querySelectorAll('.menu-link');
+    
+    menuLinks.forEach(function(link) {
+        var href = link.getAttribute('href');
+        
+        // 排除无效链接
+        if (href && 
+            href !== 'javascript:;' && 
+            href !== 'javascript:void(0);' && 
+            href !== '#' && 
+            !href.startsWith('#')) {
+            
+            link.addEventListener('click', function(e) {
+                // 如果是新窗口打开，不显示 loading
+                if (link.getAttribute('target') === '_blank') {
+                    return;
+                }
+                
+                // 阻止默认跳转
+                e.preventDefault();
+                
+                // 显示 loading
+                showPageLoading();
+                
+                // 延迟跳转，确保 loading 显示出来
+                var targetHref = href;
+                setTimeout(function() {
+                    window.location.href = targetHref;
+                }, 1500); // 延迟1500毫秒, 正式使用时，不要加延迟，这里加上是为了方便演示效果。
+            });
+        }
+    });
+});
+&lt;/script&gt;</pre>
+		</div>
+	</div>
+	
+	<!-- 功能3: 综合测试 -->
+	<div class="demo-section">
+		<h2>功能3: 综合测试</h2>
+		<p>测试各种场景下的 Loading 表现。</p>
+		
+		<h3>测试场景：</h3>
+		<div class="demo-buttons">
+			<button class="layui-btn layui-btn-primary" onclick="testScenario1()">场景1: 显示3秒后自动隐藏</button>
+			<button class="layui-btn layui-btn-primary" onclick="testScenario2()">场景2: 模拟 AJAX 请求</button>
+			<button class="layui-btn layui-btn-primary" onclick="testScenario3()">场景3: 快速切换显示/隐藏</button>
+		</div>
+		
+		<div class="status-info">
+			<p id="test-result"><strong>测试结果：</strong>等待测试...</p>
+		</div>
+	</div>
+	
+	<!-- 使用说明 -->
+	<div class="demo-section">
+		<h2>在项目中使用</h2>
+		<p>在 base.html 中已经集成了这两个功能：</p>
+		
+		<h3>1. 完整实现代码（base.html）：</h3>
+		<div class="code-block">
+			<pre>&lt;!-- 步骤1: 在 &lt;head&gt; 中添加 Loading 样式 --&gt;
+&lt;style id="page-loading-style"&gt;
+    #page-loading-overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(255, 255, 255, 0);
+        z-index: 9999999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .page-loading-icon {
+        width: 37px;
+        height: 37px;
+        background: url(__STATIC__/ext/layui/css/modules/layer/default/loading-1.gif) no-repeat center center;
+        background-size: contain;
+    }
+&lt;/style&gt;
+
+&lt;!-- 步骤2: 在 &lt;body&gt; 开头添加 Loading HTML --&gt;
+&lt;div id="page-loading-overlay"&gt;
+    &lt;div class="page-loading-icon"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 步骤3: 在页面底部添加 JavaScript 控制代码 --&gt;
+&lt;script&gt;
+// 页面加载完成后隐藏 loading - 多重保障
+(function() {
+    var hideLoading = function() {
+        var loadingOverlay = document.getElementById('page-loading-overlay');
+        if (loadingOverlay && loadingOverlay.style.display !== 'none') {
+            loadingOverlay.style.opacity = '0';
+            loadingOverlay.style.transition = 'opacity 0.3s';
+            setTimeout(function() {
+                loadingOverlay.style.display = 'none';
+            }, 300);
+        }
+    };
+    
+    var showLoading = function() {
+        var loadingOverlay = document.getElementById('page-loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'flex';
+            loadingOverlay.style.opacity = '1';
+        }
+    };
+    
+    // 方式1: 立即检查（如果 DOM 已经加载完成）
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        hideLoading();
+    }
+    
+    // 方式2: DOMContentLoaded (DOM加载完成就隐藏)
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(hideLoading, 100);
+        
+        // 为所有菜单链接添加点击事件
+        setTimeout(function() {
+            // 一级菜单
+            var topMenuLinks = document.querySelectorAll('.layui-header .layui-nav-item a');
+            // 二级菜单
+            var sideMenuLinks = document.querySelectorAll('.layui-side .layui-nav-tree a');
+            // 面包屑链接
+            var breadcrumbLinks = document.querySelectorAll('.ns-crumbs a');
+            
+            var allLinks = [];
+            topMenuLinks.forEach(function(link) { allLinks.push(link); });
+            sideMenuLinks.forEach(function(link) { allLinks.push(link); });
+            breadcrumbLinks.forEach(function(link) { allLinks.push(link); });
+            
+            allLinks.forEach(function(link) {
+                // 排除 javascript:; 和 # 链接
+                var href = link.getAttribute('href');
+                if (href && href !== 'javascript:;' && href !== 'javascript:void(0);' && 
+                    href !== '#' && !href.startsWith('#')) {
+                    link.addEventListener('click', function(e) {
+                        // 如果是新窗口打开，不显示 loading
+                        if (link.getAttribute('target') === '_blank') {
+                            return;
+                        }
+                        // 显示 loading
+                        showLoading();
+                    });
+                }
+            });
+        }, 500);
+    });
+    
+    // 方式3: window.onload
+    window.addEventListener('load', hideLoading);
+    
+    // 方式4: jQuery ready
+    if (typeof $ !== 'undefined') {
+        $(document).ready(function() {
+            setTimeout(hideLoading, 200);
+        });
+    }
+    
+    // 方式5: 强制超时保护 (2秒后必定隐藏)
+    setTimeout(hideLoading, 2000);
+    
+    // 暴露全局方法供外部调用
+    window.showPageLoading = showLoading;
+    window.hidePageLoading = hideLoading;
+})();
+&lt;/script&gt;</pre>
+		</div>
+		
+		<h3>2. 自动功能（无需额外代码）：</h3>
+		<ul style="line-height: 2;">
+			<li>✅ 页面加载时自动显示 Loading</li>
+			<li>✅ 页面加载完成后自动隐藏 Loading（多重保障机制）</li>
+			<li>✅ 点击菜单链接自动显示 Loading</li>
+			<li>✅ 自动过滤无效链接（javascript:;、#等）</li>
+			<li>✅ 新窗口打开不触发 Loading</li>
+		</ul>
+		
+		<h3>3. 手动控制 API（可选）：</h3>
+		<div class="code-block">
+			<pre>// 显示 Loading
+window.showPageLoading();
+
+// 隐藏 Loading
+window.hidePageLoading();
+
+// 使用示例1：AJAX 请求
+function loadData() {
+    window.showPageLoading();
+    
+    $.ajax({
+        url: '/api/data',
+        success: function(res) {
+            // 处理数据
+            window.hidePageLoading();
+        },
+        error: function() {
+            window.hidePageLoading();
+        }
+    });
+}
+
+// 使用示例2：耗时操作
+function processData() {
+    window.showPageLoading();
+    
+    // 执行耗时操作...
+    setTimeout(function() {
+        window.hidePageLoading();
+    }, 2000);
+}</pre>
+		</div>
+		
+		<h3>4. 关键特性说明：</h3>
+		<div class="code-block">
+			<pre>// 多重保障机制：确保 Loading 一定会被隐藏
+// 1. readyState 检查 - 如果页面已加载完成，立即隐藏
+// 2. DOMContentLoaded - DOM 加载完成后隐藏（100ms延迟）
+// 3. window.onload - 所有资源加载完成后隐藏
+// 4. jQuery ready - jQuery 加载完成后隐藏（200ms延迟）
+// 5. 强制超时 - 2秒后必定隐藏（防止意外情况）
+
+// 菜单链接自动绑定：
+// - 延迟500ms绑定，确保 DOM 完全渲染
+// - 自动识别一级、二级、三级菜单和面包屑
+// - 智能过滤无效链接
+// - 新窗口打开不触发 Loading</pre>
+		</div>
+	</div>
+	
+	<!-- 版权信息 -->
+	<div class="demo-section" style="background: #f8f8f8; border-color: #ddd;">
+		<h2 style="border-bottom-color: #999;">版权信息</h2>
+		<div style="line-height: 2; color: #666;">
+			<p><strong>作者：</strong>北里闻箫</p>
+			<p><strong>日期：</strong>2025-01-14</p>
+			<p><strong>博客：</strong><a href="https://blog.csdn.net/beiliwenxiao" target="_blank" style="color: #4685FD;">https://blog.csdn.net/beiliwenxiao</a></p>
+			<p><strong>说明：</strong>本页面用于演示和测试 Loading 功能，仅供学习和测试使用。</p>
+		</div>
+	</div>
+	
+	<script src="layui.js"></script>
+	<script>
+		/**
+		 * Loading 控制脚本
+		 * 
+		 * @author 北里闻箫
+		 * @date 2025-01-14
+		 * @blog https://blog.csdn.net/beiliwenxiao
+		 */
+		
+		// Loading 控制函数
+		function showPageLoading() {
+			var overlay = document.getElementById('page-loading-overlay');
+			if (overlay) {
+				overlay.style.display = 'flex';
+				overlay.style.opacity = '1';
+				updateStatus('显示中');
+			}
+		}
+		
+		function hidePageLoading() {
+			var overlay = document.getElementById('page-loading-overlay');
+			if (overlay) {
+				overlay.style.opacity = '0';
+				overlay.style.transition = 'opacity 0.3s';
+				setTimeout(function() {
+					overlay.style.display = 'none';
+					updateStatus('已隐藏');
+				}, 300);
+			}
+		}
+		
+		function updateStatus(status) {
+			var statusEl = document.getElementById('loading-status');
+			if (statusEl) {
+				statusEl.textContent = status;
+				statusEl.style.color = status === '显示中' ? '#ff5722' : '#4685FD';
+				statusEl.style.fontWeight = 'bold';
+			}
+		}
+		
+		// 页面加载完成后隐藏 Loading
+		window.addEventListener('load', function() {
+			hidePageLoading();
+		});
+		
+		// 为菜单链接添加点击事件
+		document.addEventListener('DOMContentLoaded', function() {
+			var menuLinks = document.querySelectorAll('.menu-link');
+			
+			menuLinks.forEach(function(link) {
+				var href = link.getAttribute('href');
+				
+				// 排除无效链接
+				if (href && 
+					href !== 'javascript:;' && 
+					href !== 'javascript:void(0);' && 
+					href !== '#' && 
+					!href.startsWith('#')) {
+					
+					link.addEventListener('click', function(e) {
+						// 如果是新窗口打开，不显示 loading
+						if (link.getAttribute('target') === '_blank') {
+							return;
+						}
+						
+						// 阻止默认跳转
+						e.preventDefault();
+						
+						// 显示 loading
+						showPageLoading();
+						
+						// 延迟跳转，确保 loading 显示出来
+						var targetHref = href;
+						setTimeout(function() {
+							window.location.href = targetHref;
+						}, 1500); // 延迟1500毫秒, 正式使用时，不要加延迟，这里加上是为了方便演示效果。
+					});
+				}
+			});
+		});
+		
+		// 测试按钮函数
+		function reloadPage() {
+			showPageLoading();
+			setTimeout(function() {
+				location.reload();
+			}, 500);
+		}
+		
+		function showLoadingManual() {
+			showPageLoading();
+		}
+		
+		function hideLoadingManual() {
+			hidePageLoading();
+		}
+		
+		// 测试场景
+		function testScenario1() {
+			document.getElementById('test-result').innerHTML = '<strong>测试结果：</strong>Loading 显示中，3秒后自动隐藏...（也可以点击遮罩层手动关闭）';
+			showPageLoading();
+			setTimeout(function() {
+				hidePageLoading();
+				document.getElementById('test-result').innerHTML = '<strong>测试结果：</strong>✅ 场景1测试完成！Loading 已自动隐藏。';
+			}, 3000);
+		}
+		
+		function testScenario2() {
+			document.getElementById('test-result').innerHTML = '<strong>测试结果：</strong>模拟 AJAX 请求中...';
+			showPageLoading();
+			
+			// 模拟 AJAX 请求
+			setTimeout(function() {
+				hidePageLoading();
+				layui.use('layer', function() {
+					var layer = layui.layer;
+					layer.msg('AJAX 请求完成！', {icon: 1});
+				});
+				document.getElementById('test-result').innerHTML = '<strong>测试结果：</strong>✅ 场景2测试完成！模拟 AJAX 请求成功。';
+			}, 2000);
+		}
+		
+		function testScenario3() {
+			document.getElementById('test-result').innerHTML = '<strong>测试结果：</strong>快速切换测试中...';
+			var count = 0;
+			var maxCount = 5;
+			
+			var interval = setInterval(function() {
+				if (count % 2 === 0) {
+					showPageLoading();
+				} else {
+					hidePageLoading();
+				}
+				count++;
+				
+				if (count >= maxCount * 2) {
+					clearInterval(interval);
+					hidePageLoading();
+					document.getElementById('test-result').innerHTML = '<strong>测试结果：</strong>✅ 场景3测试完成！快速切换 ' + maxCount + ' 次无异常。';
+				}
+			}, 500);
+		}
+		
+		// 暴露全局方法
+		window.showPageLoading = showPageLoading;
+		window.hidePageLoading = hidePageLoading;
+	</script>
+</body>
+</html>
