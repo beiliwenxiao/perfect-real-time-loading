@@ -13,3 +13,6 @@ Simply, when the URL is clicked, a loading animation should be displayed immedia
 When the front and back are combined, the effect is achieved. There is no stuttering sensation. Because the response is real-time. So it is called Loading with perfect real-time response.
 Of course, the code is based on layui.
 
+git pull或下载后查看loading.html页面即可看到测试、演示和用法。
+
+After pulling or downloading, you can view the loading.html page to see the testing, demonstration, and usage.
