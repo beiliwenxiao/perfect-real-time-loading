@@ -354,6 +354,15 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingOverlay.style.opacity = '1';
         }
     };
+
+	// iframe 内不需要页面级 loading，直接隐藏
+	if (window.self !== window.top) {
+		var loadingOverlay = document.getElementById('page-loading-overlay');
+		if (loadingOverlay) loadingOverlay.style.display = 'none';
+		window.showPageLoading = showLoading;
+		window.hidePageLoading = hideLoading;
+		return;
+	}
     
     // 方式1: 立即检查（如果 DOM 已经加载完成）
     if (document.readyState === 'interactive' || document.readyState === 'complete') {
